@@ -1,15 +1,59 @@
 import { Route,createBrowserRouter,createRoutesFromElements,RouterProvider } from 'react-router-dom';
 import React from 'react'
-import Navbar from './component/Navbar';
-import Hero from './component/Hero';     
-import HomeCards from './component/HomeCards';
-import JobListing from './component/JobListing';  
-import ViewAllJobs from './component/ViewAllJobs';
+import HomePage from './pages/HomePage';
+import MainLayout from './layouts/MainLayout';
+import JobsPage from './pages/JobsPage';
+import NotFoundPage from './pages/NotFoundPage';
+import JobPa,{jobLoader} from './pages/JobPa';
+import AddJobPage from './pages/AddJobPage';
+import EditJobPage from './pages/EditJobPage';
 
-const router = createBrowserRouter( createRoutesFromElements(<Route index element={<h1> my new app </h1>} />));
+const App = () => { 
+// ADD NEW JOB 
+ const addJob = async (newJob) => {
+  const res = await fetch ('/api/jobs', {
+     method :'POST',
+     headers :{
+      'Content-Type' : 'application/json'
+    },
 
-const App = () => {
-  return <RouterProvider router={router}/>;
+    body : JSON.stringify(newJob)
+  });
+    return;
+  }
+
+//Delete Job
+const deleteJob = async  (id) => {
+  const res = await fetch (`/api/jobs/${id}`, {
+    method :'DELETE'
+  
+ });
+   return;
 }
-
+  
+  //Update job
+  const updateJob =  async (job) => {
+      const res = await fetch (`/api/jobs/${job.MainLayoutid}`, {
+         method :'PUT',
+         headers :{
+          'Content-Type' : 'application/json'
+        },
+    
+        body : JSON.stringify(job)
+      });
+        return;
+  
+}
+  const router = createBrowserRouter( createRoutesFromElements(
+    <Route path='/' element = {<MainLayout/>}>
+    <Route index element={<HomePage />} />
+    <Route path='/jobs' element={<JobsPage/>} /> 
+    <Route path='add-job' element={<AddJobPage addJobSubmit={addJob}/>}/>
+    <Route path='/jobs/:id' element={<JobPa deleteJob={deleteJob}/>} loader ={jobLoader} />
+    <Route path='/edit-jobs/:id' element={<EditJobPage updateJobSubmit={updateJob}/>} loader ={jobLoader} />
+    < Route path='*' element={<NotFoundPage/>}/>
+    </Route>
+  ));
+  return <RouterProvider router={router}/>
+}
 export default App
